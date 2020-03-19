@@ -61,6 +61,7 @@ import com.android.customization.widget.OptionSelectorController;
 import com.android.customization.widget.PreviewPager;
 import com.android.wallpaper.R;
 import com.android.wallpaper.asset.Asset;
+import com.android.wallpaper.asset.Asset.CenterCropBitmapTask;
 import com.android.wallpaper.model.WallpaperInfo;
 import com.android.wallpaper.module.CurrentWallpaperInfoFactory;
 import com.android.wallpaper.module.InjectorProvider;
@@ -456,10 +457,12 @@ public class ThemeFragment extends ToolbarFragment {
                         // Disable seekbar
                         seekbar.setOnTouchListener((view, motionEvent) -> true);
 
+                        int iconFgColor = res.getColor(R.color.tile_enabled_icon_color, null);
                         for (int i = 0; i < mColorTileIds.length && i < previewInfo.icons.size();
                                 i++) {
                             Drawable icon = previewInfo.icons.get(mColorTileIconIds[i][1])
                                     .getConstantState().newDrawable().mutate();
+                            icon.setTint(iconFgColor);
                             Drawable bgShape =
                                     previewInfo.shapeDrawable.getConstantState().newDrawable();
                             bgShape.setTint(accentColor);
@@ -555,7 +558,9 @@ public class ThemeFragment extends ToolbarFragment {
                     if (wallpaperPreviewAsset != null) {
                         wallpaperPreviewAsset.decodeBitmap(
                                 targetWidth, targetHeight,
-                                bitmap -> setWallpaperBitmap(view, bitmap));
+                                bitmap -> new CenterCropBitmapTask(bitmap, view,
+                                        croppedBitmap -> setWallpaperBitmap(view, croppedBitmap))
+                                .execute());
                     }
                     view.removeOnLayoutChangeListener(this);
                 }
